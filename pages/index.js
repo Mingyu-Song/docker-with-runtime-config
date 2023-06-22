@@ -1,11 +1,20 @@
-import getConfig from "next/config";
 import Head from "next/head";
 import styles from "../styles/Home.module.css";
 
-export default function Home() {
-  const { publicRuntimeConfig } = getConfig();
-  const { hihi } = publicRuntimeConfig;
+export function getEnv(envName) {
+  if (!envName) {
+    return undefined;
+  }
 
+  if (typeof window !== "undefined") {
+    const { __ENV } = window;
+    return __ENV[envName];
+  } else {
+    return process.env[envName];
+  }
+}
+
+export default function Home(props) {
   return (
     <div className={styles.container}>
       <Head>
@@ -14,7 +23,10 @@ export default function Home() {
       </Head>
 
       <main className={styles.main}>
-        <h1 className={styles.title}>ENV HIHI = {hihi}</h1>
+        <h1 className={styles.title}>
+          from server side props ENV HIHI = {props.hihi}
+          from public/__ENV.js HIHI = {getEnv("NEXT_PUBLIC_HIHI")}
+        </h1>
 
         <p className={styles.description}>
           Get started by editing{" "}
@@ -67,3 +79,12 @@ export default function Home() {
     </div>
   );
 }
+
+export const getServerSideProps = async () => {
+  const hihi = getEnv("NEXT_PUBLIC_HIHI");
+  return {
+    props: {
+      hihi,
+    },
+  };
+};
